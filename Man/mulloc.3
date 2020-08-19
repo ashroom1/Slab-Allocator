@@ -1,0 +1,103 @@
+./"    This program is free software: you can redistribute it and/or modify
+./"    it.
+./"
+./"    This program is distributed in the hope that it will be useful,
+./"    but WITHOUT ANY WARRANTY; without even the implied warranty of
+./"    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+./"
+.Dd Mar 28, 2020
+.Dt MULLOC 3
+.Os
+.Sh NAME
+.Nm mullinit ,
+.Nm mulloc ,
+.Nm mullfree ,
+.Nm freeall
+.Nd memory allocation
+.Sh SYNOPSIS
+.In mull.h
+.Ft int
+.Fo mullinit
+.Fa "size_t size"
+.Fa "int count"
+.Fc
+.Ft void *
+.Fo mulloc
+.Fa "int SlabID"
+.Fc
+.Ft void
+.Fo mullfree
+.Fa "void * restrict ptr"
+.Fa "int SlabID"
+.Fc
+.Ft void
+.Fo freeall
+.Fa "int SlabID"
+.Fc
+.Sh DESCRIPTION
+The
+.Fn mullinit
+function initializes the allocator for a particular slab type. The
+.Fn mulloc
+function allocates memory for 1 slab of a given type. The
+.Fn mullfree
+function frees a slab that was created via
+.Fn mulloc .
+.Pp
+The
+.Fn mullinit
+function initializes a slab type whose size in bytes is specified by
+.Fa size
+and also pre-allocates
+.Fa count
+slabs if
+.Fa count
+is greater than zero. It returns
+an integer greater than 0 unique to the slab type.
+.Pp
+The
+.Fn mulloc
+function allocates memory for 1 slab of type determined by the argument
+.Fa SlabID
+which is obtained by a call to
+.Fn mullinit .
+.Pp
+The
+.Fn mullfree
+function frees the memory pointed to by
+.Fa ptr .
+If
+.Fa ptr
+is NULL, then nothing is done. The
+.Fa SlabID
+argument can be used to specify the slab type for which the memory pointed to by
+.Fa ptr
+was used. A value less than 0 can be given if unknown.
+.Pp
+The
+.Fn freeall
+function frees all the slabs allocated to the
+.Fa SlabID .
+If a negative value is passed for
+.Fa SlabID
+, it is the same as calling this function seperately for all SlabIDs in existance.
+.Sh RETURN VALUES
+If successful the
+.Fn mullinit
+function return a positive integer which is a unique identifier to that slab type.
+If there is an error, it returns -1.
+.Pp
+The
+.Fn mulloc
+function returns a pointer to the allocated slab. If an error occurs,
+NULL is returned and ERRNO is set to ENOMEM.
+.Pp
+The
+.Fn mullfree
+and
+.Fn freeall
+functions do not return anything.
+.Sh SEE ALSO
+.Xr malloc 3 ,
+.Xr calloc 3 ,
+.Xr free 3
